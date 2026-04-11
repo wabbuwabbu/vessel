@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VESSEL</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #070b1a;
+    --navy-mid: #0d1530;
+    --navy-light: #162040;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #7a6030;
+    --white: #f0ede8;
+    --white-dim: #a09a90;
+    --accent: #1a2a5e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    padding: 1.5rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(7,11,26,0.98), transparent);
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; font-weight: 300; letter-spacing: 0.4em;
+    color: var(--gold); text-decoration: none;
+  }
+
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+
+  .nav-links a {
+    color: var(--white-dim); text-decoration: none;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  .nav-investor {
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); text-decoration: none;
+    border: 1px solid rgba(201,168,76,0.35);
+    padding: 0.4rem 0.9rem;
+    transition: background 0.3s, color 0.3s;
+  }
+  .nav-investor:hover { background: var(--gold); color: var(--navy); }
+
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px;
+    cursor: pointer; background: none; border: none; padding: 4px;
+  }
+  .hamburger span { display: block; width: 24px; height: 1px; background: var(--gold); transition: all 0.3s; }
+
+  .mobile-menu {
+    display: none; position: fixed; inset: 0;
+    background: rgba(7,11,26,0.98); z-index: 800;
+    flex-direction: column; align-items: center; justify-content: center; gap: 2rem;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    color: var(--white); text-decoration: none; font-size: 1.5rem;
+    font-family: 'Cormorant Garamond', serif; letter-spacing: 0.2em; transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--gold); }
+  .mobile-close {
+    position: absolute; top: 2rem; right: 4rem;
+    background: none; border: none; color: var(--gold);
+    font-size: 2rem; cursor: pointer; font-family: 'Cormorant Garamond', serif;
+  }
+
+  section { min-height: 100vh; padding: 8rem 4rem 6rem; position: relative; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; line-height: 1.1;
+    margin-bottom: 3rem; color: var(--white);
+  }
+  .gold-line { width: 60px; height: 1px; background: var(--gold); margin-bottom: 3rem; }
+  .body-text {
+    font-size: 0.9rem; line-height: 1.9; color: var(--white-dim);
+    max-width: 720px; margin-bottom: 1.5rem;
+  }
+
+  .img-placeholder {
+    background: var(--navy-light);
+    border: 1px dashed rgba(201,168,76,0.3);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.75rem; color: var(--gold-dim); font-size: 0.7rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+
+  /* HOME */
+  #home { padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+
+  .hero {
+    position: relative; flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 8rem 2rem 6rem; overflow: hidden;
+  }
+
+  .hero-bg { position: absolute; inset: 0; z-index: 0; }
+  .hero-bg-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--navy-mid) 0%, var(--accent) 50%, var(--navy) 100%);
+  }
+
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(7,11,26,0.4) 0%, rgba(7,11,26,0.2) 40%, rgba(7,11,26,0.7) 100%);
+    z-index: 1;
+  }
+
+  .hero-content { position: relative; z-index: 2; }
+
+  .hero-eyebrow {
+    font-size: 0.65rem; letter-spacing: 0.5em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 2rem; animation: fadeUp 1s ease both;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(5rem, 15vw, 12rem); font-weight: 300;
+    letter-spacing: 0.15em; line-height: 1; color: var(--white);
+    margin-bottom: 2rem; animation: fadeUp 1s 0.2s ease both;
+  }
+  .hero-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 2.5vw, 1.4rem); font-weight: 300; font-style: italic;
+    color: var(--gold-light); margin-bottom: 3rem; animation: fadeUp 1s 0.4s ease both;
+  }
+  .hero-logline {
+    font-size: 0.8rem; line-height: 1.8; color: var(--white-dim);
+    max-width: 600px; margin: 0 auto 3rem; animation: fadeUp 1s 0.6s ease both;
+  }
+  .hero-cta {
+    display: inline-block; border: 1px solid var(--gold); color: var(--gold);
+    text-decoration: none; font-size: 0.65rem; letter-spacing: 0.3em;
+    text-transform: uppercase; padding: 1rem 2.5rem; transition: all 0.3s;
+    animation: fadeUp 1s 0.8s ease both;
+  }
+  .hero-cta:hover { background: var(--gold); color: var(--navy); }
+
+  .hero-scroll {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    color: var(--gold-dim); font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+    animation: fadeUp 1s 1s ease both;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--gold-dim), transparent);
+    animation: scrollPulse 2s infinite;
+  }
+
+  /* ABOUT */
+  #about { background: var(--navy); }
+
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: start; }
+
+  .comp-list { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem; }
+  .comp-item { border-left: 2px solid var(--gold-dim); padding-left: 1.25rem; }
+  .comp-item-title { font-size: 0.8rem; font-weight: 500; color: var(--gold); margin-bottom: 0.4rem; letter-spacing: 0.05em; }
+  .comp-item-body { font-size: 0.78rem; line-height: 1.7; color: var(--white-dim); }
+
+  /* WORLD */
+  #world { background: var(--navy-mid); }
+
+  .world-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+
+  .world-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(201,168,76,0.15);
+    padding: 2rem; transition: border-color 0.3s;
+  }
+  .world-card:hover { border-color: rgba(201,168,76,0.4); }
+  .world-card-icon { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--gold); margin-bottom: 1rem; }
+  .world-card-title { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+  .world-card-body { font-size: 0.78rem; line-height: 1.8; color: var(--white-dim); }
+
+  /* SERIES */
+  #series { background: var(--navy); }
+
+  .series-timeline { display: flex; flex-direction: column; gap: 0; margin-top: 3rem; position: relative; }
+  .series-timeline::before {
+    content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
+    width: 1px; background: linear-gradient(to bottom, var(--gold), transparent);
+  }
+
+  .series-item { display: flex; gap: 2.5rem; padding-bottom: 3rem; position: relative; }
+  .series-dot {
+    width: 25px; height: 25px; border-radius: 50%;
+    border: 1px solid var(--gold); background: var(--navy);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1;
+  }
+  .series-dot-inner { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+  .series-content { flex: 1; }
+  .series-tag { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+  .series-name { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; color: var(--white); margin-bottom: 0.75rem; }
+  .series-body { font-size: 0.82rem; line-height: 1.8; color: var(--white-dim); max-width: 600px; }
+
+  /* TONE */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: start; }
+
+  /* CHARACTERS */
+  #characters { background: var(--navy); }
+
+  .char-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+  .char-card { position: relative; overflow: hidden; border: 1px solid rgba(201,168,76,0.15); transition: border-color 0.3s; cursor: default; }
+  .char-card:hover { border-color: rgba(201,168,76,0.4); }
+  .char-img { width: 100%; aspect-ratio: 3/4; }
+  .char-info { padding: 1.5rem; background: var(--navy-mid); }
+  .char-role { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem; }
+  .char-name { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; color: var(--white); margin-bottom: 0.75rem; }
+  .char-body { font-size: 0.72rem; line-height: 1.7; color: var(--white-dim); }
+  .char-actor { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(201,168,76,0.15); font-size: 0.65rem; color: var(--gold-dim); letter-spacing: 0.1em; }
+  .char-actor span { color: var(--gold); }
+
+  /* ROADMAP */
+  #roadmap { background: var(--navy-mid); }
+
+  .roadmap-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 3rem; }
+  .roadmap-item {
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(201,168,76,0.1);
+    padding: 1.75rem; display: flex; gap: 1.25rem; align-items: flex-start;
+  }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .status-complete { background: #4a7a4a; }
+  .status-progress { background: var(--gold); }
+  .status-planned  { background: rgba(201,168,76,0.3); border: 1px solid var(--gold-dim); }
+  .roadmap-status { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .status-complete-text { color: #7ab87a; }
+  .status-progress-text { color: var(--gold); }
+  .status-planned-text  { color: var(--gold-dim); }
+  .roadmap-title { font-size: 0.85rem; color: var(--white); font-weight: 400; margin-bottom: 0.4rem; }
+  .roadmap-body  { font-size: 0.72rem; line-height: 1.6; color: var(--white-dim); }
+
+  .prod-section-title { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; }
+
+  /* INVESTOR CTA BANNER */
+  .investor-banner {
+    background: rgba(201,168,76,0.04);
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 2.5rem 3rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 4rem;
+  }
+  .investor-banner-text {}
+  .investor-banner-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 300; color: var(--white);
+    margin-bottom: 0.4rem;
+  }
+  .investor-banner-body { font-size: 0.75rem; color: var(--white-dim); line-height: 1.7; max-width: 480px; }
+  .investor-banner-cta {
+    display: inline-block;
+    border: 1px solid var(--gold); color: var(--gold);
+    text-decoration: none; font-size: 0.63rem; letter-spacing: 0.35em;
+    text-transform: uppercase; padding: 0.9rem 2rem; transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .investor-banner-cta:hover { background: var(--gold); color: var(--navy); }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy); border-top: 1px solid rgba(201,168,76,0.15);
+    padding: 3rem 4rem; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; letter-spacing: 0.4em; color: var(--gold); }
+  .footer-contact { font-size: 0.72rem; color: var(--white-dim); }
+  .footer-contact a { color: var(--gold); text-decoration: none; }
+  .footer-note { font-size: 0.65rem; color: var(--gold-dim); letter-spacing: 0.1em; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 1; }
+  }
+
+  .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1.25rem 2rem; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    section { padding: 7rem 2rem 5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .world-grid { grid-template-columns: 1fr; }
+    .char-grid  { grid-template-columns: repeat(2, 1fr); }
+    .roadmap-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; align-items: flex-start; padding: 2rem; }
+    .hero-title { font-size: clamp(4rem, 20vw, 8rem); }
+    #tone .section-inner > div[style*="repeat(3,1fr)"] { grid-template-columns: 1fr !important; }
+    #tone .section-inner > div[style*="repeat(4,1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
+    #tone .section-inner > div[style*="height:400px"]  { height: 220px !important; }
+    .investor-banner { flex-direction: column; align-items: flex-start; }
+  }
+
+  @media (max-width: 600px) {
+    .char-grid { grid-template-columns: 1fr; }
+    section { padding: 6rem 1.25rem 4rem; }
+    nav { padding: 1rem 1.25rem; }
+    footer { padding: 1.5rem; }
+    #tone .img-placeholder[style*="aspect-ratio:3/4"] { aspect-ratio: 16/9 !important; }
+    #tone .section-inner > div[style*="height:400px"] { height: 180px !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">VESSEL</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#world">The World</a></li>
+    <li><a href="#series">The Series</a></li>
+    <li><a href="#tone">Tone</a></li>
+    <li><a href="#characters">Characters</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="investor.html" class="nav-investor">Investor Access</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="toggleMenu()">&#215;</button>
+  <a href="#home"       onclick="toggleMenu()">Home</a>
+  <a href="#about"      onclick="toggleMenu()">About</a>
+  <a href="#world"      onclick="toggleMenu()">The World</a>
+  <a href="#series"     onclick="toggleMenu()">The Series</a>
+  <a href="#tone"       onclick="toggleMenu()">Tone</a>
+  <a href="#characters" onclick="toggleMenu()">Characters</a>
+  <a href="#roadmap"    onclick="toggleMenu()">Roadmap</a>
+  <a href="investor.html">Investor Access</a>
+</div>
+
+<!-- HOME -->
+<section id="home">
+  <div class="hero">
+    <div class="hero-bg">
+      <div class="hero-bg-placeholder"
+            style="background-image: url('./img/bg/545154-5691033.jpg');
+                  opacity: 0.05;
+                  background-size: cover;
+                  background-position: center;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  position: relative;">
+      </div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">An Original Mythology &nbsp;&bull;&nbsp; London &nbsp;&bull;&nbsp; In Development</p>
+      <h1 class="hero-title">VESSEL</h1>
+      <p class="hero-tagline">&ldquo;They feed on what you feel. She felt something she did not expect.&rdquo;</p>
+      <p class="hero-logline">A burnt out young Londoner becomes the target of a secret organisation when an ancient entity chooses him as the human she feeds from and decides he is worth protecting.</p>
+      <a href="#about" class="hero-cta">Explore the Project</a>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <p class="section-label fade-in">The Concept</p>
+    <h2 class="section-title fade-in">A hidden world.<br>An unwanted bond.<br>An impossible choice.</h2>
+    <div class="gold-line fade-in"></div>
+    <div class="about-grid">
+      <div>
+        <p class="body-text fade-in">Vessel is a contemporary urban thriller set in London, built on an original mythology of immortal entities that have existed alongside humanity since the dawn of civilisation. These beings feed on human emotion, drawing sustenance from every feeling a person experiences across a lifetime, and have done so since the dawn of time.</p>
+        <p class="body-text fade-in">Most humans never know they exist. Some are chosen.</p>
+        <p class="body-text fade-in">What makes Vessel distinct is its moral architecture. There are no good supernatural beings and no evil ones. The ancient being who chose the protagonist is not a guardian angel. She feeds from him, regulates his emotions without his knowledge, and cares about his survival mainly because his death would undo everything she has built. When she begins to feel something beyond self interest, it becomes the emotional engine of the story.</p>
+        <p class="body-text fade-in" style="color:var(--gold);font-style:italic;font-family:'Cormorant Garamond',serif;font-size:1.1rem;line-height:1.6;">Genre: Supernatural Thriller &nbsp;&bull;&nbsp; Dark Fantasy &nbsp;&bull;&nbsp; Action<br>Setting: Contemporary London<br>Production: Canary Islands, Spain</p>
+      </div>
+      <div>
+        <p class="prod-section-title fade-in">Comparable Titles</p>
+        <div class="comp-list">
+          <div class="comp-item fade-in">
+            <div class="comp-item-title">John Wick (2014)</div>
+            <div class="comp-item-body">Grounded urban world with a sophisticated hidden mythology. Shares the escalating conflict structure and commitment to practical action.</div>
+          </div>
+          <div class="comp-item fade-in">
+            <div class="comp-item-title">Death Note (2006)</div>
+            <div class="comp-item-body">The most direct mythological comparison. Supernatural entity and human bond dynamic with proven global crossover appeal.</div>
+          </div>
+          <div class="comp-item fade-in">
+            <div class="comp-item-title">Arrival (2016)</div>
+            <div class="comp-item-body">Emotional benchmark for the central relationship. Unconventional bond between human and non-human treated with intelligence and restraint.</div>
+          </div>
+          <div class="comp-item fade-in">
+            <div class="comp-item-title">Bright (2017)</div>
+            <div class="comp-item-body">Contemporary city with a hidden supernatural ecosystem running parallel to ordinary life.</div>
+          </div>
+          <div class="comp-item fade-in">
+            <div class="comp-item-title">Your Name (2016)</div>
+            <div class="comp-item-body">Bond across different planes of existence, devastating separation, and the driving question of whether what was lost can be found again.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE WORLD -->
+<section id="world">
+  <div class="section-inner">
+    <p class="section-label fade-in">The Mythology</p>
+    <h2 class="section-title fade-in">Humanity has never<br>been alone.</h2>
+    <div class="gold-line fade-in"></div>
+    <p class="body-text fade-in">Since before the first civilisations, an ancient species has existed alongside humanity. Immortal, invisible to ordinary perception, and sustained entirely by human emotion. They are not gods in the conventional sense. They do not answer prayers or grant wishes.</p>
+    <div class="world-grid">
+      <div class="world-card fade-in">
+        <div class="world-card-icon">I</div>
+        <div class="world-card-title">Tier I &mdash; The Gods</div>
+        <div class="world-card-body">Cosmic architects. They created the conditions for life and feed on the collective emotional output of entire civilisations. Humanity is to them what ants are to the planet. The religions and gods humanity has named across history are misunderstood residue of something real and far less personal.</div>
+      </div>
+      <div class="world-card fade-in">
+        <div class="world-card-icon">II</div>
+        <div class="world-card-title">Tier II &mdash; The Bonded</div>
+        <div class="world-card-body">Intimate and deeply invested in individual human lives. Each carries an essence, a specific emotional frequency they can control within their chosen human. The bond is permanent, deepening through shared experience, capable of becoming the most significant relationship either of them has ever had.</div>
+      </div>
+      <div class="world-card fade-in">
+        <div class="world-card-icon">&#8734;</div>
+        <div class="world-card-title">Primordials</div>
+        <div class="world-card-body">The near-gods. Ancient beyond reckoning, capable of world-altering power, regarded by Tier I with something resembling familial respect. They do not need a Vessel but prefer one. A Primordial choosing a human is therefore an event of enormous significance. The human was not chosen out of necessity.</div>
+      </div>
+      <div class="world-card fade-in">
+        <div class="world-card-icon">&#9675;</div>
+        <div class="world-card-title">Strays &mdash; The Unbound</div>
+        <div class="world-card-body">Any entity without a human bond. Unbound, hungry, and desperate. The hidden explanation behind centuries of folklore. Unexplained deaths. The feeling of being watched in empty places. The legends are real. The explanations are not.</div>
+      </div>
+      <div class="world-card fade-in">
+        <div class="world-card-icon">&#9670;</div>
+        <div class="world-card-title">The Essence</div>
+        <div class="world-card-body">Each entity carries an essence, a specific emotional frequency they can control within their chosen human. Not what they feed on, they feed on everything equally, but what they can regulate. A fear essence can suppress or amplify fear. A grief essence can accelerate or deepen loss.</div>
+      </div>
+      <div class="world-card fade-in">
+        <div class="world-card-icon">&#9650;</div>
+        <div class="world-card-title">The Bond</div>
+        <div class="world-card-body">Permanent once formed. The human has no say and may never know it is happening. It deepens through shared experience, capable of becoming the most significant relationship either of them has ever had. An entity that feels too much, that wants too much, that loses control of its own emotional restraint, can destroy the very thing it was trying to keep.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE SERIES -->
+<section id="series">
+  <div class="section-inner">
+    <p class="section-label fade-in">The Vision</p>
+    <h2 class="section-title fade-in">A world built<br>to last.</h2>
+    <div class="gold-line fade-in"></div>
+    <p class="body-text fade-in">Vessel is designed as the foundation of an expanding world rather than a single contained story. The mythology is deep enough to sustain years of storytelling. The characters are specific enough to carry an audience across multiple formats.</p>
+    <div class="series-timeline fade-in">
+      <div class="series-item">
+        <div class="series-dot"><div class="series-dot-inner"></div></div>
+        <div class="series-content">
+          <div class="series-tag">Film One &mdash; In Development</div>
+          <div class="series-name">Vessel</div>
+          <div class="series-body">Daniel, a directionless young Londoner, is chosen by Noel, one of the most powerful entities alive, as her human bond. When a secret organisation discovers what he carries, he is forced into a hidden world of immortal beings, forbidden power, and a relationship neither of them was prepared for. A complete story. A door left open.</div>
+        </div>
+      </div>
+      <div class="series-item">
+        <div class="series-dot"><div class="series-dot-inner"></div></div>
+        <div class="series-content">
+          <div class="series-tag">Film Two &mdash; In Development</div>
+          <div class="series-name">Vessel: Title Pending</div>
+          <div class="series-body">In the aftermath of the first film, Daniel is powerless and grieving. Noel is somewhere in the world, a Stray, carrying the memory of everything they were without knowing why she cannot stop thinking about a human whose name she no longer knows. The mission is finding her. The emotional question: whether a bond that was never chosen can be chosen again, deliberately, with full knowledge of what it costs.</div>
+        </div>
+      </div>
+      <div class="series-item">
+        <div class="series-dot"><div class="series-dot-inner"></div></div>
+        <div class="series-content">
+          <div class="series-tag">Companion Series &mdash; Planned</div>
+          <div class="series-name">Vessel: Hunt</div>
+          <div class="series-body">Episodic, grounded, horror adjacent. Each episode follows Daniel and Noel hunting unbound entities in the hidden spaces of contemporary London and beyond. The series format allows the world to breathe week to week, telling contained human stories within the larger mythology. The entry point for audiences who discover the property through streaming rather than cinema.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TONE -->
+<section id="tone" style="background:var(--navy-mid);">
+  <div class="section-inner">
+    <p class="section-label fade-in">Visual Identity</p>
+    <h2 class="section-title fade-in">Tone &amp; Visual<br>Language</h2>
+    <div class="gold-line fade-in"></div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:4rem;" class="fade-in">
+      <div style="position:relative;">
+        <div class="img-placeholder" style="aspect-ratio:3/4;width:100%;">
+          <img src="./img/scenes/Rainy_evening_London.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        <div style="padding:1rem 0 0;">
+          <div style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;">Grounded</div>
+          <div style="font-size:0.75rem;color:var(--white-dim);line-height:1.6;">Contemporary London, ordinary and unglamorous. The baseline the supernatural is measured against.</div>
+        </div>
+      </div>
+      <div style="position:relative;">
+        <div class="img-placeholder" style="aspect-ratio:3/4;width:100%;">
+          <img src="./img/scenes/Noel_standing_tube.png" style="width:100%;height:100%;object-fit:cover;display:block;opacity:90%;">
+        </div>
+        <div style="padding:1rem 0 0;">
+          <div style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;">Layered</div>
+          <div style="font-size:0.75rem;color:var(--white-dim);line-height:1.6;">The supernatural exists beneath the ordinary. Something is wrong before the audience can name it.</div>
+        </div>
+      </div>
+      <div style="position:relative;">
+        <div class="img-placeholder" style="aspect-ratio:3/4;width:100%;">
+          <img src="./img/character/Strays/Stray1.png" class="top-crop" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        <div style="padding:1rem 0 0;">
+          <div style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;">Horror</div>
+          <div style="font-size:0.75rem;color:var(--white-dim);line-height:1.6;">Strays are corrupted and wrong. The horror comes from wrongness.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-grid fade-in" style="margin-bottom:4rem;">
+      <div>
+        <p class="body-text">Vessel is grounded before it is supernatural. The visual language of the first act is deliberately ordinary. Fluorescent office lighting. Grey morning commutes. A flat that is functional rather than lived in. The mundanity is intentional. It is the baseline against which everything that follows lands harder.</p>
+        <p class="body-text">As the bond deepens the visual world shifts without announcing itself. London does not become fantastical. It becomes layered. The same streets carry a different weight. The same faces hide different things. The supernatural does not replace the ordinary. It exists beneath it.</p>
+        <p class="body-text">Noel's avatar is precise and timeless, almost elvish, a presence that does not belong to any particular era. When she manifests publicly the camera treats her the way it treats something genuinely ancient in a modern space. Slightly wrong in the best possible way. Too still. Too aware. Her true form is not shown directly. It is felt. Sound design and peripheral suggestion rather than spectacle.</p>
+      </div>
+      <div>
+        <p class="body-text">The Stray sequences are where the film earns its horror credentials. A Stray's avatar is unstable and corrupted. Darkened veins. Grayed skin. Proportions that slip when it is hungry. Shot tightly and practically, close to the ground, the horror coming from wrongness rather than scale.</p>
+        <p class="body-text">The action is grounded and consequential. Daniel is not a superhero in the conventional sense, though some of what he can do would be difficult to describe any other way. The capabilities the bond gives him come entirely from Noel, granted at her discretion and shaped by what she is.</p>
+        <p class="body-text" style="color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;line-height:1.8;">Dark without being nihilistic. Supernatural without being fantastical. Emotionally driven without sacrificing momentum.</p>
+      </div>
+    </div>
+
+    <div class="fade-in" style="position:relative;margin-bottom:3rem;">
+      <div class="img-placeholder" style="width:100%;height:400px;">
+        <img src="./img/scenes/Nighttime_reflections.png" style="width:100%;height:100%;object-fit:cover;display:block;object-position:top center;">
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;" class="fade-in">
+      <div style="position:relative;">
+        <div class="img-placeholder" style="aspect-ratio:1/1;width:100%;">
+          <img src="./img/scenes/Early_morning_desk.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+      </div>
+      <div style="position:relative;">
+        <div class="img-placeholder" style="aspect-ratio:1/1;width:100%;">
+          <img src="./img/scenes/Noel_elegance_amidst_bustle.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+      </div>
+      <div style="position:relative;">
+        <div class="img-placeholder" style="aspect-ratio:1/1;width:100%;">
+          <img src="./img/scenes/Daniel_Nighttime_street_fight.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+      </div>
+      <div style="position:relative;">
+        <div class="img-placeholder" style="aspect-ratio:1/1;width:100%;">
+          <img src="./img/scenes/Nael_darkbg.png" style="width:100%;height:100%;object-fit:cover;display:block;object-position:top center;">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CHARACTERS -->
+<section id="characters">
+  <div class="section-inner">
+    <p class="section-label fade-in">The People</p>
+    <h2 class="section-title fade-in">The Characters</h2>
+    <div class="gold-line fade-in"></div>
+    <div class="char-grid">
+
+      <div class="char-card fade-in">
+        <div class="char-img img-placeholder" style="aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;">
+          <img src="./img/character/Daniel/daniel_portrait.png" alt="Daniel" style="max-width:112%;max-height:112%;object-fit:contain;">
+        </div>
+        <div class="char-info">
+          <div class="char-role">Protagonist &mdash; The Vessel</div>
+          <div class="char-name">Daniel</div>
+          <div class="char-body">Twenty seven. British. Works a desk job that pays the rent and asks nothing of him. Raised with military discipline and a mother who valued character over comfort. Decent in a way that is not performed or self conscious. Cannot make himself look away when something wrong is happening in front of him.</div>
+          <div class="char-actor">Potential fit: <span>To be cast</span></div>
+        </div>
+      </div>
+
+      <div class="char-card fade-in">
+        <div class="char-img img-placeholder" style="aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;">
+          <img src="./img/character/Noel/Noel_Portrait.png" alt="Noel" style="max-width:200%;max-height:200%;object-fit:contain;">
+        </div>
+        <div class="char-info">
+          <div class="char-role">The Primordial &mdash; Aspect of Fear</div>
+          <div class="char-name">Noel</div>
+          <div class="char-body">Existed since before the planet had its current form. Almost elvish in appearance, with very straight golden hair and a stillness that makes rooms feel different. Stoic. Speaks when she has something to say. Capable of warmth toward the very few things she has chosen to care about across incomprehensible time.</div>
+          <div class="char-actor">Potential fit: <span>To be cast (twin?)</span></div>
+        </div>
+      </div>
+
+      <div class="char-card fade-in">
+        <div class="char-img img-placeholder" style="aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;">
+          <img src="./img/character/Lucy/lucy_portrait.png" alt="Lucy" style="max-width:200%;max-height:200%;object-fit:contain;">
+        </div>
+        <div class="char-info">
+          <div class="char-role">The Romantic Interest</div>
+          <div class="char-name">Lucy</div>
+          <div class="char-body">Mid twenties. Works in the same office as Daniel. Warm, feminine and naturally grounded, with a clear sense of identity and boundaries. Slow to trust, but deeply loyal once trust is given. She is the one who remains at the end.</div>
+          <div class="char-actor">Potential fit: <span>To be cast</span></div>
+        </div>
+      </div>
+
+      <div class="char-card fade-in">
+        <div class="char-img img-placeholder" style="aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;">
+          <img src="./img/character/Adrian/Adrian_Portrait.png" alt="Adrian" style="max-width:200%;max-height:200%;object-fit:contain;">
+        </div>
+        <div class="char-info">
+          <div class="char-role">The Antagonist</div>
+          <div class="char-name">Adrian</div>
+          <div class="char-body">Mid forties. Former military and intelligence. Charismatic in the controlled way of men trained to operate under pressure. His diagnosis is often correct. His conclusions are not.</div>
+          <div class="char-actor">Potential fit: <span>To be cast</span></div>
+        </div>
+      </div>
+
+      <div class="char-card fade-in">
+        <div class="char-img img-placeholder" style="aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;">
+          <img src="./img/character/Corvin/Corvin_Portrait.png" alt="Corvin" style="max-width:115%;max-height:115%;object-fit:contain;">
+        </div>
+        <div class="char-info">
+          <div class="char-role">The Antagonist's Primordial</div>
+          <div class="char-name">Corvin</div>
+          <div class="char-body">An ancient Primordial. Appears human in his late twenties, with a contained, martial presence that signals danger instinctively. His relationship with Adrian is transactional rather than loyal. He has ambitions older than the organisation he serves.</div>
+          <div class="char-actor">Potential fit: <span>To be cast</span></div>
+        </div>
+      </div>
+
+      <div class="char-card fade-in">
+        <div class="char-img img-placeholder" style="aspect-ratio:3/4;align-items:center;justify-content:center;overflow:hidden;">
+          <img src="./img/character/Nael/Nael_Portrait.png" alt="Nael" style="max-width:200%;max-height:200%;object-fit:contain;">
+        </div>
+        <div class="char-info">
+          <div class="char-role">The Sister &mdash; Most Powerful Entity</div>
+          <div class="char-name">Nael</div>
+          <div class="char-body">Identical to Noel in appearance, except for white hair. A being of such power that comparison becomes meaningless. Not aligned as villain or ally. The oldest presence in the world, and the only constant in Noel's existence.</div>
+          <div class="char-actor">Potential fit: <span>To be cast (twin?)</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Investor CTA banner -->
+    <div class="investor-banner fade-in">
+      <div class="investor-banner-text">
+        <div class="investor-banner-title">Investor Presentation</div>
+        <div class="investor-banner-body">Full synopsis, beat structure, production budget, and financing models are available under NDA. Request access to receive the investor password.</div>
+      </div>
+      <a href="investor.html" class="investor-banner-cta">Request Access</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="section-inner">
+    <p class="section-label fade-in">Development Status</p>
+    <h2 class="section-title fade-in">Roadmap</h2>
+    <div class="gold-line fade-in"></div>
+    <div style="display:flex;gap:2rem;margin-bottom:2rem;flex-wrap:wrap;" class="fade-in">
+      <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.7rem;color:var(--white-dim);">
+        <div class="status-dot status-complete"></div> Complete
+      </div>
+      <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.7rem;color:var(--white-dim);">
+        <div class="status-dot status-progress"></div> In Progress
+      </div>
+      <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.7rem;color:var(--white-dim);">
+        <div class="status-dot status-planned"></div> Planned
+      </div>
+    </div>
+    <div class="roadmap-grid">
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-complete"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-complete-text">Complete</div>
+          <div class="roadmap-title">World Lore Document</div>
+          <div class="roadmap-body">Full foundational mythology. Two tier entity structure, feeding mechanics, essence system, bond rules, Stray ecosystem, submission rite, true forms, ruleset by category.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-complete"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-complete-text">Complete</div>
+          <div class="roadmap-title">Three Act Story Structure</div>
+          <div class="roadmap-body">Full 32-beat structure for Film One. Act I through Act III mapped in detail including all character arcs, relationship dynamics, and emotional climax.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-complete"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-complete-text">Complete</div>
+          <div class="roadmap-title">Character Backgrounds</div>
+          <div class="roadmap-body">Full psychological and biographical backgrounds for all six principal characters. Daniel, Noel, Lucy, Adrian, Corvin, and Nael. Ready for casting brief.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-complete"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-complete-text">Complete</div>
+          <div class="roadmap-title">Investor Film Slate</div>
+          <div class="roadmap-body">Full written film slate including concept, logline, synopsis, tone document, comparables, character introductions, world overview, series vision, and production overview.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-progress"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-progress-text">In Progress</div>
+          <div class="roadmap-title">Screenplay &mdash; Film One</div>
+          <div class="roadmap-body">Full feature screenplay based on completed three act structure. Story beats, character arcs, and world rules fully established. First draft in development.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-progress"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-progress-text">In Progress</div>
+          <div class="roadmap-title">Visual Development</div>
+          <div class="roadmap-body">Character concept art, entity true form exploration, Stray avatar visual language, and key scene mood boards. Canary Islands location scouting to follow.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-planned"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-planned-text">Planned</div>
+          <div class="roadmap-title">Director Attachment</div>
+          <div class="roadmap-body">Approach shortlisted directors with completed screenplay and full lore document. Target attachment before principal investment close.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-planned"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-planned-text">Planned</div>
+          <div class="roadmap-title">Casting</div>
+          <div class="roadmap-body">Six principal roles to cast. Full character briefs ready. Dual role casting for Noel and Nael requires exceptional performer. Casting director to be appointed.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-planned"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-planned-text">Planned</div>
+          <div class="roadmap-title">Film Two &mdash; Story Development</div>
+          <div class="roadmap-body">Structure and character development for the second film. The search for Noel. Nael's involvement. The organisation's regrouping.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-planned"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-planned-text">Planned</div>
+          <div class="roadmap-title">Vessel: Hunt &mdash; Series Bible</div>
+          <div class="roadmap-body">Full series bible for the companion Stray hunting show. Episode format, seasonal arc structure, world expansion, and streaming distribution strategy.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-planned"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-planned-text">Planned</div>
+          <div class="roadmap-title">Principal Photography</div>
+          <div class="roadmap-body">Target shooting schedule following investment close, director attachment, and completed casting. Canary Islands primary location with London location work.</div>
+        </div>
+      </div>
+      <div class="roadmap-item fade-in">
+        <div class="status-dot status-planned"></div>
+        <div class="roadmap-content">
+          <div class="roadmap-status status-planned-text">Planned</div>
+          <div class="roadmap-title">Festival Strategy &amp; Distribution</div>
+          <div class="roadmap-body">International festival circuit targeting major genre and prestige festivals. Distribution conversations to begin following director attachment. Global streaming and theatrical distribution.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">VESSEL</div>
+  <div class="footer-contact">
+    Investor enquiries: <a href="mailto:enquiries@vesselfilm.com">enquiries@vesselfilm.com</a>
+  </div>
+  <div class="footer-note">
+    &copy; 2026 Oliver Balbuena Rodriguez. All rights reserved.<br>
+    <a href="investor.html" style="color:var(--gold-dim);text-decoration:none;border-bottom:1px solid rgba(122,96,48,0.35);font-size:0.62rem;letter-spacing:0.1em;">Investor Access</a>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => { entry.target.classList.add('visible'); }, 100);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  const sections  = document.querySelectorAll('section[id]');
+  const navLinks  = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      if (window.scrollY >= section.offsetTop - 100) {
+        current = section.getAttribute('id');
+      }
+    });
+    navLinks.forEach(link => {
+      link.style.color = '';
+      if (link.getAttribute('href') === '#' + current) link.style.color = 'var(--gold)';
+    });
+  });
+</script>
+</body>
+</html>

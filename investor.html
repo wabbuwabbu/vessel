@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VESSEL &mdash; Investor Access</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:       #070b1a;
+    --navy-mid:   #0d1530;
+    --gold:       #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim:   #7a6030;
+    --white:      #f0ede8;
+    --white-dim:  #a09a90;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: var(--navy); color: var(--white); font-family: 'Montserrat', sans-serif; font-weight: 300; overflow: hidden; }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  .bg-glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%,  rgba(26,42,94,0.55) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 90%, rgba(201,168,76,0.04) 0%, transparent 60%);
+  }
+
+  .bg-rule-top, .bg-rule-btm {
+    position: fixed; left: 0; right: 0; height: 1px; pointer-events: none; z-index: 0;
+    background: linear-gradient(to right, transparent, rgba(201,168,76,0.07), transparent);
+  }
+  .bg-rule-top { top: 28%; }
+  .bg-rule-btm { bottom: 28%; }
+
+  #login-screen {
+    position: relative; z-index: 10;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+
+  .login-card {
+    width: 100%; max-width: 400px;
+    display: flex; flex-direction: column; align-items: center;
+    animation: fadeUp 0.9s ease both;
+  }
+
+  .login-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4.2rem; font-weight: 300;
+    letter-spacing: 0.55em; text-indent: 0.55em;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.58rem; letter-spacing: 0.45em; text-transform: uppercase;
+    color: var(--white-dim); margin-bottom: 2.5rem; text-align: center;
+  }
+
+  .gold-line {
+    width: 48px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin-bottom: 2.5rem;
+  }
+
+  .access-label {
+    font-size: 0.58rem; letter-spacing: 0.42em; text-transform: uppercase;
+    color: var(--gold-dim); margin-bottom: 1.75rem;
+  }
+
+  .login-form { width: 100%; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.25rem; }
+
+  .input-label {
+    display: block; font-size: 0.53rem; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.45rem;
+  }
+
+  .login-input {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: 0.82rem;
+    padding: 0.85rem 1rem;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+    border-radius: 0; -webkit-appearance: none;
+  }
+  .login-input::placeholder { color: rgba(160,154,144,0.3); }
+  .login-input:focus { border-color: rgba(201,168,76,0.5); background: rgba(255,255,255,0.05); }
+
+  .login-btn {
+    width: 100%; margin-top: 0.5rem; padding: 1rem;
+    background: transparent; border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Montserrat', sans-serif; font-weight: 400; font-size: 0.63rem;
+    letter-spacing: 0.42em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.3s, color 0.3s;
+    display: flex; align-items: center; justify-content: center; min-height: 48px;
+  }
+  .login-btn:hover:not(:disabled) { background: var(--gold); color: var(--navy); }
+  .login-btn:disabled { opacity: 0.45; cursor: default; }
+
+  .error-msg {
+    font-size: 0.65rem; color: #c97a7a; letter-spacing: 0.05em;
+    text-align: center; min-height: 1.1em;
+    opacity: 0; transition: opacity 0.3s; margin-bottom: 0.4rem;
+  }
+  .error-msg.visible { opacity: 1; }
+
+  .login-footer {
+    margin-top: 2.5rem; font-size: 0.58rem; color: var(--gold-dim);
+    letter-spacing: 0.12em; text-align: center; line-height: 2;
+  }
+  .login-footer a {
+    color: var(--gold-dim); text-decoration: none;
+    border-bottom: 1px solid rgba(122,96,48,0.35); transition: color 0.3s, border-color 0.3s;
+  }
+  .login-footer a:hover { color: var(--gold); border-color: var(--gold); }
+
+  .back-link {
+    position: fixed; top: 1.6rem; left: 1.75rem;
+    font-size: 0.56rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--gold-dim); text-decoration: none; transition: color 0.3s; z-index: 20;
+  }
+  .back-link:hover { color: var(--gold); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 1px solid rgba(201,168,76,0.3); border-top-color: var(--gold);
+    border-radius: 50%; animation: spin 0.65s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="bg-rule-top"></div>
+<div class="bg-rule-btm"></div>
+
+<a href="index.html" class="back-link">&larr; Back</a>
+
+<div id="login-screen">
+  <div class="login-card">
+
+    <div class="login-logo">VESSEL</div>
+    <div class="login-subtitle">An Original Mythology &nbsp;&bull;&nbsp; London</div>
+
+    <div class="gold-line"></div>
+    <div class="access-label">Investor Access</div>
+
+    <div class="login-form">
+      <div>
+        <label class="input-label" for="email">Email Address</label>
+        <input class="login-input" type="email" id="email"
+          placeholder="your@email.com" autocomplete="email" spellcheck="false" />
+      </div>
+      <div>
+        <label class="input-label" for="password">Access Password</label>
+        <input class="login-input" type="password" id="password"
+          placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+          autocomplete="current-password" />
+      </div>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <button class="login-btn" id="btn-enter" onclick="attemptLogin()">
+      Enter
+    </button>
+
+    <div class="login-footer">
+      Confidential &nbsp;&bull;&nbsp; NDA Required<br>
+      Request access: <a href="/cdn-cgi/l/email-protection#82e7ecf3f7ebf0ebe7f1c2f4e7f1f1e7eee4ebeeeface1edef"><span class="__cf_email__" data-cfemail="42272c33372b302b27310234273131272e242b2e2f6c212d2f">[email&#160;protected]</span></a>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+<script>
+// ================================================================
+//  AUTHORISED USERS
+//
+//  No emails, passwords, or cipher text lives in this file.
+//  Each investor has a separate cipher file in the /ciphers/ folder.
+//
+//  Each entry needs:
+//    emailHash  — SHA-256 of their email (from encrypt-tool.html)
+//    passHash   — SHA-256 of their password (from encrypt-tool.html)
+//    cipherFile — filename generated by encrypt-tool.html
+//                 e.g. "ciphers/a3f8c2d1.js"
+//
+//  To add an investor:
+//    1. Run encrypt-tool.html — it produces a .js cipher file to
+//       download, and an entry block to paste here.
+//    2. Put the .js file in your /ciphers/ folder.
+//    3. Paste the entry block below.
+//    4. Push both files to GitHub.
+//
+//  To revoke access: delete their entry and their cipher file.
+// ================================================================
+
+const AUTHORIZED_USERS = [
+  {
+  emailHash:  "4b01ed4675e1c524496750cd66f0519f1b8dbf879236c4048cc287db93e0a065",
+  passHash:   "093684fd134b1c3e003312aca6aafc1e78dc63bf2bbf2ff7be7bd2689b60904b",
+  cipherFile: "ciphers/d763f1ed.js",
+  },
+];
+
+// ================================================================
+//  AUTH + DECRYPT — do not edit below
+// ================================================================
+
+function sha256(str) {
+  return CryptoJS.SHA256(str).toString();
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function clearError() {
+  document.getElementById('error-msg').classList.remove('visible');
+}
+
+function attemptLogin() {
+  clearError();
+
+  const email    = (document.getElementById('email').value    || '').trim().toLowerCase();
+  const password = (document.getElementById('password').value || '').trim();
+
+  if (!email || !password) {
+    showError('Please enter both your email address and password.');
+    return;
+  }
+
+  if (AUTHORIZED_USERS.length === 0) {
+    showError('No authorised users configured. Contact the production team.');
+    return;
+  }
+
+  const user = AUTHORIZED_USERS.find(
+    u => u.emailHash === sha256(email) && u.passHash === sha256(password)
+  );
+
+  if (!user) {
+    showError('Access denied. Credentials do not match our records.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-enter');
+  btn.disabled  = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+
+  // Dynamically load this user's cipher file, then decrypt
+  const script  = document.createElement('script');
+  script.src    = user.cipherFile + '?v=' + Date.now();
+
+  script.onload = function () {
+    try {
+      // Cipher files set window._vesselCipher to their content
+      const cipher = window._vesselCipher;
+
+      if (!cipher || cipher.length < 100) {
+        showError('Cipher file could not be read. Contact the production team.');
+        btn.disabled    = false;
+        btn.textContent = 'Enter';
+        return;
+      }
+
+      const bytes     = CryptoJS.AES.decrypt(cipher, password);
+      const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+
+      if (!decrypted || decrypted.length < 500) {
+        showError('Decryption failed. Please contact the production team.');
+        btn.disabled    = false;
+        btn.textContent = 'Enter';
+        return;
+      }
+
+      document.open();
+      document.write(decrypted);
+      document.close();
+
+    } catch (e) {
+      showError('An unexpected error occurred. Please try again.');
+      btn.disabled    = false;
+      btn.textContent = 'Enter';
+    }
+  };
+
+  script.onerror = function () {
+    showError('Cipher file not found. Contact the production team.');
+    btn.disabled    = false;
+    btn.textContent = 'Enter';
+  };
+
+  document.head.appendChild(script);
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') attemptLogin();
+});
+
+document.getElementById('email').addEventListener('input',    clearError);
+document.getElementById('password').addEventListener('input', clearError);
+</script>
